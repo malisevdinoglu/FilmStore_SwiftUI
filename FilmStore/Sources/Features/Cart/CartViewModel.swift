@@ -38,7 +38,24 @@ final class CartViewModel: ObservableObject {
                 self.rawItems = items
                 self.displayItems = Self.group(items)
             }
-        } catch {
+        }
+        // —— Seçenek A: Boş sepeti hata sayma ——
+        catch APIError.decoding {
+            await MainActor.run {
+                self.rawItems = []
+                self.displayItems = []
+                self.error = nil
+            }
+        }
+        catch APIError.server {
+            await MainActor.run {
+                self.rawItems = []
+                self.displayItems = []
+                self.error = nil
+            }
+        }
+        // Gerçek hataları göstermeye devam et
+        catch {
             await MainActor.run { self.error = error.localizedDescription }
         }
     }
